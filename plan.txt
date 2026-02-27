@@ -1,0 +1,74 @@
+1. it is a one page web-based application
+2. the result should be open and run through edge and chrome
+3. the main goal is to provide three parts to generate a english word, which may not be meaningful
+4. The combination should be in CVC, Head_Consosant1-Vowel-Tail_Consosant
+5. the fisrt part, Head_Consosatn1_1, has two sub-groups
+   easy group "b, p, m, f, d, t, n, l, g, k, h, s, th, r"
+   complext group "dr, tr, br, pr, bl, pl, kl, sl, sm, sn, sb, sd, sg, str"
+6. the second part, Vowel, has two sub-groups
+   140 group "e, ai, a, ou, i, oo, oa, o, er, ar"
+   8800 group "a, e, i, o, u, a_e, e_e, i_e, o_e, u_e, ar, er, ir, or, ur, ee, oo, ou, oi, air"
+7. the thrid part, Tail_Consosnat has three sub-groups
+   single group "s, ss, b, p, d, t, g, ck, st, sp"
+   nose group "m, mb, mp, n, nd, nt"
+   extra group " ph, ch, sh th"
+8. When doing combination, "_" in second part means the choice in third part should be placed at the position
+   ex:  b, i_e, nt  ->  binte
+9. I want there are three parts to select subgroup for CVC
+10. each elemnt of each subgroups could be check and unchecked
+11. the consosant should be light blue
+12. the vowel should be red
+13. each subgroup chould be selected entirely or unselected
+14. Options section with title "OPTIONS" and organized subgroups
+    a. Subgroup "Num of test":
+       - Elements per group (number input, default: 3, positive integer)
+       - Number of groups (dropdown)
+    b. Subgroup "Format":
+       - Consonants in light blue (checkbox)
+       - Vowels in red (checkbox)
+       - Show score column (checkbox)
+       - Font size (dropdown: Small/Medium/Large/Extra Large)
+       - Font style (dropdown: Serif/Sans-serif/Monospace/Cursive)
+    c. Subgroup "Print":
+       - Page orientation (dropdown: Landscape/Portrait)
+    e. Action buttons:
+       - Generate button
+       - Print/PDF button
+    d. Subgroup "Extra":
+       - Seed (number input, default: 1)
+15. Output color options (both checked by default)
+    a. "Consonants in light blue" checkbox - when checked, head and tail consonants in output words are displayed in light blue (#4A90A4)
+    b. "Vowels in red" checkbox - when checked, vowels in output words are displayed in red (#C41E3A)
+    c. When both are checked, each word shows: head(blue) + vowel(red) + tail(blue)
+    d. When unchecked, the entire word displays in black
+16. Uniform distribution for combination selection
+    a. Generate all possible combinations from selected heads × vowels × tails
+    b. Each combination should be picked with equal probability
+    c. Algorithm:
+       1. Generate all combinations: heads × vowels × tails
+       2. Shuffle the pool 10 times for thorough randomization
+       3. Pick candidates from first to end sequentially
+       4. If all items in pool are used, repeat steps 1-3 to get a new shuffled pool
+    d. Example: If heads=[b,p], vowels=[a,e], tails=[t,s] and need 10 words:
+       - All combinations: bat, bas, bet, bes, pat, pas, pet, pes (8 total)
+       - Shuffle 10 times, pick all 8
+       - Need 2 more: generate new pool, shuffle 10 times, pick 2
+       - Each combination appears exactly once before any repeats
+    e. This ensures all possible word patterns are practiced evenly
+18. Output layout in grid format
+    a. Display generated words in a grid layout
+    b. Each row is a group, words are columns
+    c. Dashed line separator between each group/row
+    d. Clean alignment for easy reading and printing
+    e. Optional score column at the end of each row (checkbox option, unchecked by default)
+       - When enabled, adds a "Score" header and empty score cell for each row
+       - Useful for grading worksheets
+
+17. Statistics display to verify element distribution
+    a. Show a statistics section below the output after generation
+    b. Display count and percentage for each element used, grouped by category (Head, Vowel, Tail)
+    c. Format: "element: count (percentage%)" for each element
+    d. Sorted in descending order by count (highest first)
+    e. Color-coded to match the element type (consonants in blue, vowels in red)
+    f. Helps verify uniform distribution is working correctly
+

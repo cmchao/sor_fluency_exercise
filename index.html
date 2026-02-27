@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOR Spelling Exercise Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid;
+        }
+
+        .consonant-section .section-title {
+            color: #4A90A4;
+            border-color: #87CEEB;
+        }
+
+        .vowel-section .section-title {
+            color: #C41E3A;
+            border-color: #DC143C;
+        }
+
+        .subgroup {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #fafafa;
+            border-radius: 4px;
+        }
+
+        .subgroup-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .subgroup-header label {
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .subgroup-header input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .elements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-left: 25px;
+        }
+
+        .element-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .consonant-section .element-checkbox {
+            background: #E6F3F7;
+        }
+
+        .consonant-section .element-checkbox:hover {
+            background: #C5E4ED;
+        }
+
+        .vowel-section .element-checkbox {
+            background: #FCE4E8;
+        }
+
+        .vowel-section .element-checkbox:hover {
+            background: #F8C9D0;
+        }
+
+        .element-checkbox input {
+            cursor: pointer;
+        }
+
+        .element-checkbox span {
+            font-family: monospace;
+            font-size: 1em;
+        }
+
+        .options-container .section-title {
+            color: #555;
+            border-color: #999;
+        }
+
+        .options-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .options-subgroup {
+            background: #fafafa;
+            border-radius: 6px;
+            padding: 12px;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .subgroup-title {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .option-group label {
+            font-weight: 500;
+        }
+
+        .option-group select {
+            padding: 5px 10px;
+            font-size: 1em;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 10px 25px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .generate-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .generate-btn:hover {
+            background: #45a049;
+        }
+
+        .print-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .print-btn:hover {
+            background: #1976D2;
+        }
+
+        .output-section {
+            min-height: 150px;
+        }
+
+        .output-section .section-title {
+            color: #333;
+            border-color: #666;
+        }
+
+        #output {
+            font-size: 24pt;
+            display: grid;
+            gap: 0 20px;
+        }
+
+        #output .group-number {
+            font-weight: bold;
+            color: #666;
+            text-align: right;
+            padding-right: 10px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        #output .word {
+            text-align: center;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        #output .row-separator {
+            border-bottom: 1px dashed #ccc;
+            margin: 0;
+        }
+
+        #output .score-header {
+            font-weight: bold;
+            color: #666;
+            text-align: center;
+            padding: 10px;
+            border-bottom: 1px dashed #ccc;
+        }
+
+        #output .score-cell {
+            text-align: center;
+            padding: 10px;
+            min-width: 60px;
+            border-left: 1px solid #ccc;
+        }
+
+        #output .word .consonant-part {
+            color: #4A90A4;
+        }
+
+        #output .word .vowel-part {
+            color: #C41E3A;
+        }
+
+        .color-option label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .color-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .error {
+            color: #c00;
+            font-style: italic;
+        }
+
+        /* Statistics styles */
+        .stats-section .section-title {
+            color: #666;
+            border-color: #999;
+        }
+
+        .stats-category {
+            margin-bottom: 15px;
+        }
+
+        .stats-category-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stats-category-title.consonant {
+            color: #4A90A4;
+        }
+
+        .stats-category-title.vowel {
+            color: #C41E3A;
+        }
+
+        .stats-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stats-item {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .stats-item.consonant {
+            background: #E6F3F7;
+            color: #4A90A4;
+        }
+
+        .stats-item.vowel {
+            background: #FCE4E8;
+            color: #C41E3A;
+        }
+
+        /* Print styles */
+        @media print {
+            @page {
+                size: landscape;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+                max-width: none;
+            }
+
+            .section {
+                box-shadow: none;
+                border: none;
+            }
+
+            .consonant-section,
+            .vowel-section,
+            .options-container,
+            .buttons,
+            .stats-section,
+            h1 {
+                display: none !important;
+            }
+
+            .output-section {
+                border: none;
+                padding: 0;
+            }
+
+            .output-section .section-title {
+                display: none;
+            }
+
+            #output {
+                font-size: 18pt;
+                gap: 15px 25px;
+            }
+
+            #output .word {
+                margin: 0 15px;
+            }
+        }
+    </style>
+    <style id="print-orientation">
+        @media print {
+            @page { size: landscape; }
+        }
+    </style>
+</head>
+<body>
+    <h1>SOR Spelling Exercise Generator</h1>
+
+    <div class="section consonant-section" id="head-section">
+        <div class="section-title">HEAD CONSONANTS</div>
+        <div id="head-content"></div>
+    </div>
+
+    <div class="section vowel-section" id="vowel-section">
+        <div class="section-title">VOWELS</div>
+        <div id="vowel-content"></div>
+    </div>
+
+    <div class="section consonant-section" id="tail-section">
+        <div class="section-title">TAIL CONSONANTS</div>
+        <div id="tail-content"></div>
+    </div>
+
+    <div class="section options-container">
+        <div class="section-title">OPTIONS</div>
+        <div class="options-section">
+            <div class="options-subgroup">
+                <div class="subgroup-title">Num of test</div>
+                <div class="option-group">
+                    <label for="elements-per-group">Elements per group:</label>
+                    <input type="number" id="elements-per-group" value="3" min="1" step="1" style="width: 80px; padding: 5px; font-size: 1em; border-radius: 4px; border: 1px solid #ccc;">
+                </div>
+                <div class="option-group">
+                    <label for="num-groups">Number of groups:</label>
+                    <select id="num-groups">
+                        <option value="3">3</option>
+                        <option value="5" selected>5</option>
+                        <option value="8">8</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+            </div>
+            <div class="options-subgroup">
+                <div class="subgroup-title">Format</div>
+                <div class="option-group color-option">
+                    <label>
+                        <input type="checkbox" id="color-consonants" checked>
+                        Consonants in light blue
+                    </label>
+                </div>
+                <div class="option-group color-option">
+                    <label>
+                        <input type="checkbox" id="color-vowels" checked>
+                        Vowels in red
+                    </label>
+                </div>
+                <div class="option-group color-option">
+                    <label>
+                        <input type="checkbox" id="show-score-column">
+                        Show score column
+                    </label>
+                </div>
+                <div class="option-group">
+                    <label for="font-size">Font size:</label>
+                    <select id="font-size">
+                        <option value="16">Small (16pt)</option>
+                        <option value="24" selected>Medium (24pt)</option>
+                        <option value="32">Large (32pt)</option>
+                        <option value="48">Extra Large (48pt)</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label for="font-style">Font style:</label>
+                    <select id="font-style">
+                        <option value="Georgia, serif" selected>Serif</option>
+                        <option value="Arial, sans-serif">Sans-serif</option>
+                        <option value="Courier New, monospace">Monospace</option>
+                        <option value="Brush Script MT, cursive">Cursive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="options-subgroup">
+                <div class="subgroup-title">Print</div>
+                <div class="option-group">
+                    <label for="page-orientation">Page orientation:</label>
+                    <select id="page-orientation">
+                        <option value="landscape" selected>Landscape</option>
+                        <option value="portrait">Portrait</option>
+                    </select>
+                </div>
+            </div>
+            <div class="options-subgroup">
+                <div class="subgroup-title">Extra</div>
+                <div class="option-group">
+                    <label for="seed">Seed:</label>
+                    <input type="number" id="seed" value="1" min="1" style="width: 80px; padding: 5px; font-size: 1em; border-radius: 4px; border: 1px solid #ccc;">
+                </div>
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="generate-btn" onclick="generateWords()">Generate</button>
+            <button class="print-btn" onclick="printPage()">Print / PDF</button>
+        </div>
+    </div>
+
+    <div class="section output-section">
+        <div class="section-title">OUTPUT</div>
+        <div id="output"></div>
+    </div>
+
+    <div class="section stats-section" id="stats-section" style="display: none;">
+        <div class="section-title">STATISTICS</div>
+        <div id="stats"></div>
+    </div>
+
+    <script>
+        // Data definitions
+        const data = {
+            head: {
+                easy: ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 's', 'th', 'r'],
+                complex: ['dr', 'tr', 'br', 'pr', 'bl', 'pl', 'kl', 'sl', 'sm', 'sn', 'sb', 'sd', 'sg', 'str']
+            },
+            vowel: {
+                '140': ['e', 'ai', 'a', 'ou', 'i', 'oo', 'oa', 'o', 'er', 'ar'],
+                '8800': ['a', 'e', 'i', 'o', 'u', 'a_e', 'e_e', 'i_e', 'o_e', 'u_e', 'ar', 'er', 'ir', 'or', 'ur', 'ee', 'oo', 'ou', 'oi', 'air']
+            },
+            tail: {
+                single: ['s', 'ss', 'b', 'p', 'd', 't', 'g', 'ck', 'st', 'sp'],
+                nose: ['m', 'mb', 'mp', 'n', 'nd', 'nt'],
+                extra: ['ph', 'ch', 'sh', 'th']
+            }
+        };
+
+        // Render a subgroup with checkboxes
+        function renderSubgroup(category, subgroupName, elements, container) {
+            const subgroupDiv = document.createElement('div');
+            subgroupDiv.className = 'subgroup';
+
+            const headerId = `${category}-${subgroupName}-all`;
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'subgroup-header';
+            headerDiv.innerHTML = `
+                <label>
+                    <input type="checkbox" id="${headerId}" onchange="toggleSubgroup('${category}', '${subgroupName}', this.checked)">
+                    ${subgroupName.charAt(0).toUpperCase() + subgroupName.slice(1)}
+                </label>
+            `;
+            subgroupDiv.appendChild(headerDiv);
+
+            const elementsDiv = document.createElement('div');
+            elementsDiv.className = 'elements';
+            elementsDiv.id = `${category}-${subgroupName}-elements`;
+
+            elements.forEach(el => {
+                const label = document.createElement('label');
+                label.className = 'element-checkbox';
+                const checkboxId = `${category}-${subgroupName}-${el}`;
+                label.innerHTML = `
+                    <input type="checkbox" id="${checkboxId}" data-category="${category}" data-subgroup="${subgroupName}" data-value="${el}" onchange="updateSubgroupCheckbox('${category}', '${subgroupName}')">
+                    <span>${el}</span>
+                `;
+                elementsDiv.appendChild(label);
+            });
+
+            subgroupDiv.appendChild(elementsDiv);
+            container.appendChild(subgroupDiv);
+        }
+
+        // Toggle all checkboxes in a subgroup
+        function toggleSubgroup(category, subgroupName, checked) {
+            const checkboxes = document.querySelectorAll(`#${category}-${subgroupName}-elements input[type="checkbox"]`);
+            checkboxes.forEach(cb => cb.checked = checked);
+        }
+
+        // Update subgroup header checkbox based on element checkboxes
+        function updateSubgroupCheckbox(category, subgroupName) {
+            const checkboxes = document.querySelectorAll(`#${category}-${subgroupName}-elements input[type="checkbox"]`);
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            const someChecked = Array.from(checkboxes).some(cb => cb.checked);
+            const headerCheckbox = document.getElementById(`${category}-${subgroupName}-all`);
+            headerCheckbox.checked = allChecked;
+            headerCheckbox.indeterminate = someChecked && !allChecked;
+        }
+
+        // Get all selected elements for a category
+        function getSelectedElements(category) {
+            const checkboxes = document.querySelectorAll(`input[data-category="${category}"]:checked`);
+            return Array.from(checkboxes).map(cb => cb.dataset.value);
+        }
+
+        // Generate a single word from head + vowel + tail
+        // Returns object with parts for coloring
+        function generateWord(head, vowel, tail) {
+            // Check if vowel contains magic-e pattern
+            if (vowel.includes('_')) {
+                // Split on underscore: a_e becomes ['a', 'e']
+                const parts = vowel.split('_');
+                // Pattern: head + first part + tail + second part
+                // For magic-e: head is consonant, vowel part is first+second, tail is consonant
+                return {
+                    head: head,
+                    vowel: parts[0],
+                    tail: tail,
+                    magicE: parts[1],
+                    full: head + parts[0] + tail + parts[1]
+                };
+            } else {
+                // Standard pattern
+                return {
+                    head: head,
+                    vowel: vowel,
+                    tail: tail,
+                    magicE: null,
+                    full: head + vowel + tail
+                };
+            }
+        }
+
+        // Format word with colors based on options
+        function formatWord(wordObj) {
+            const colorConsonants = document.getElementById('color-consonants').checked;
+            const colorVowels = document.getElementById('color-vowels').checked;
+
+            if (!colorConsonants && !colorVowels) {
+                // No coloring, return plain text
+                return wordObj.full;
+            }
+
+            let html = '';
+
+            // Head consonant
+            if (colorConsonants) {
+                html += `<span class="consonant-part">${wordObj.head}</span>`;
+            } else {
+                html += wordObj.head;
+            }
+
+            // Vowel
+            if (colorVowels) {
+                html += `<span class="vowel-part">${wordObj.vowel}</span>`;
+            } else {
+                html += wordObj.vowel;
+            }
+
+            // Tail consonant
+            if (colorConsonants) {
+                html += `<span class="consonant-part">${wordObj.tail}</span>`;
+            } else {
+                html += wordObj.tail;
+            }
+
+            // Magic-e (part of vowel pattern)
+            if (wordObj.magicE) {
+                if (colorVowels) {
+                    html += `<span class="vowel-part">${wordObj.magicE}</span>`;
+                } else {
+                    html += wordObj.magicE;
+                }
+            }
+
+            return html;
+        }
+
+        // Seeded random number generator (Mulberry32)
+        let rngState = 1;
+        function seedRng(seed) {
+            rngState = seed;
+        }
+        function seededRandom() {
+            rngState |= 0;
+            rngState = rngState + 0x6D2B79F5 | 0;
+            let t = Math.imul(rngState ^ rngState >>> 15, 1 | rngState);
+            t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        }
+
+        // Shuffle array (Fisher-Yates) using seeded RNG
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Pick random elements from array
+        function pickRandom(array, count) {
+            const shuffled = shuffle(array);
+            return shuffled.slice(0, Math.min(count, shuffled.length));
+        }
+
+        // Generate all possible combinations of heads × vowels × tails
+        function generateAllCombinations(heads, vowels, tails) {
+            const combinations = [];
+            for (const head of heads) {
+                for (const vowel of vowels) {
+                    for (const tail of tails) {
+                        combinations.push({ head, vowel, tail });
+                    }
+                }
+            }
+            return combinations;
+        }
+
+        // Shuffle array multiple times for thorough randomization
+        function shuffleMultiple(array, times) {
+            let arr = [...array];
+            for (let i = 0; i < times; i++) {
+                arr = shuffle(arr);
+            }
+            return arr;
+        }
+
+        // Create a uniform distribution pool from combinations
+        // Algorithm: shuffle 10 times, pick sequentially, repeat when exhausted
+        function createCombinationPool(combinations, count) {
+            if (combinations.length === 0) return [];
+
+            const pool = [];
+            while (pool.length < count) {
+                // Generate new shuffled pool (shuffle 10 times)
+                const shuffledCombinations = shuffleMultiple(combinations, 10);
+                // Pick from first to end
+                for (const combo of shuffledCombinations) {
+                    pool.push(combo);
+                    if (pool.length >= count) break;
+                }
+            }
+            return pool;
+        }
+
+        // Main generation function
+        function generateWords() {
+            const heads = getSelectedElements('head');
+            const vowels = getSelectedElements('vowel');
+            const tails = getSelectedElements('tail');
+
+            const outputDiv = document.getElementById('output');
+
+            // Validation
+            if (heads.length === 0 || vowels.length === 0 || tails.length === 0) {
+                outputDiv.innerHTML = '<p class="error">Please select at least one element from each section (head, vowel, tail).</p>';
+                return;
+            }
+
+            // Initialize seeded RNG
+            const seed = parseInt(document.getElementById('seed').value) || 1;
+            seedRng(seed);
+
+            let elementsPerGroup = parseInt(document.getElementById('elements-per-group').value);
+            const numGroups = parseInt(document.getElementById('num-groups').value);
+
+            // Validate elements per group (must be positive integer)
+            if (isNaN(elementsPerGroup) || elementsPerGroup < 1) {
+                elementsPerGroup = 1;
+                document.getElementById('elements-per-group').value = 1;
+            }
+            elementsPerGroup = Math.floor(elementsPerGroup);
+
+            const totalWords = elementsPerGroup * numGroups;
+
+            // Generate all possible combinations and create uniform pool
+            const allCombinations = generateAllCombinations(heads, vowels, tails);
+            const combinationPool = createCombinationPool(allCombinations, totalWords);
+
+            const groups = [];
+            let wordIndex = 0;
+            for (let g = 0; g < numGroups; g++) {
+                const words = [];
+                for (let w = 0; w < elementsPerGroup; w++) {
+                    const combo = combinationPool[wordIndex];
+                    words.push(generateWord(combo.head, combo.vowel, combo.tail));
+                    wordIndex++;
+                }
+                groups.push(words);
+            }
+
+            // Get options
+            const fontSize = document.getElementById('font-size').value;
+            const fontStyle = document.getElementById('font-style').value;
+            const showScoreColumn = document.getElementById('show-score-column').checked;
+
+            // Render output as grid
+            let html = '';
+
+            // Add header row if score column is enabled
+            if (showScoreColumn) {
+                html += `<span class="score-header"></span>`; // empty cell for number column
+                for (let i = 0; i < elementsPerGroup; i++) {
+                    html += `<span class="score-header"></span>`; // empty cells for word columns
+                }
+                html += `<span class="score-header">Score</span>`;
+            }
+
+            groups.forEach((words, index) => {
+                html += `<span class="group-number">${index + 1}.</span>`;
+                words.forEach(wordObj => {
+                    html += `<span class="word">${formatWord(wordObj)}</span>`;
+                });
+                // Add score cell if enabled
+                if (showScoreColumn) {
+                    html += `<span class="score-cell"></span>`;
+                }
+                // Add separator after each row except the last
+                if (index < groups.length - 1) {
+                    html += `<div class="row-separator" style="grid-column: 1 / -1;"></div>`;
+                }
+            });
+
+            outputDiv.innerHTML = html;
+            outputDiv.style.fontSize = fontSize + 'pt';
+            outputDiv.style.fontFamily = fontStyle;
+            // Set grid columns: 1 for number + N for words (+ score column if enabled)
+            const scoreCol = showScoreColumn ? ' auto' : '';
+            outputDiv.style.gridTemplateColumns = `auto repeat(${elementsPerGroup}, 1fr)${scoreCol}`;
+
+            // Calculate and display statistics
+            displayStatistics(combinationPool);
+        }
+
+        // Count occurrences of each element from combination pool
+        function countFromCombinations(pool, key) {
+            const counts = {};
+            pool.forEach(combo => {
+                const el = combo[key];
+                counts[el] = (counts[el] || 0) + 1;
+            });
+            return counts;
+        }
+
+        // Display statistics
+        function displayStatistics(combinationPool) {
+            const statsSection = document.getElementById('stats-section');
+            const statsDiv = document.getElementById('stats');
+
+            const headCounts = countFromCombinations(combinationPool, 'head');
+            const vowelCounts = countFromCombinations(combinationPool, 'vowel');
+            const tailCounts = countFromCombinations(combinationPool, 'tail');
+
+            const totalWords = combinationPool.length;
+
+            let html = '';
+
+            // Head consonants stats
+            html += '<div class="stats-category">';
+            html += '<div class="stats-category-title consonant">Head Consonants</div>';
+            html += '<div class="stats-items">';
+            Object.entries(headCounts).sort((a, b) => b[1] - a[1]).forEach(([el, count]) => {
+                const pct = ((count / totalWords) * 100).toFixed(1);
+                html += `<span class="stats-item consonant">${el}: ${count} (${pct}%)</span>`;
+            });
+            html += '</div></div>';
+
+            // Vowels stats
+            html += '<div class="stats-category">';
+            html += '<div class="stats-category-title vowel">Vowels</div>';
+            html += '<div class="stats-items">';
+            Object.entries(vowelCounts).sort((a, b) => b[1] - a[1]).forEach(([el, count]) => {
+                const pct = ((count / totalWords) * 100).toFixed(1);
+                html += `<span class="stats-item vowel">${el}: ${count} (${pct}%)</span>`;
+            });
+            html += '</div></div>';
+
+            // Tail consonants stats
+            html += '<div class="stats-category">';
+            html += '<div class="stats-category-title consonant">Tail Consonants</div>';
+            html += '<div class="stats-items">';
+            Object.entries(tailCounts).sort((a, b) => b[1] - a[1]).forEach(([el, count]) => {
+                const pct = ((count / totalWords) * 100).toFixed(1);
+                html += `<span class="stats-item consonant">${el}: ${count} (${pct}%)</span>`;
+            });
+            html += '</div></div>';
+
+            statsDiv.innerHTML = html;
+            statsSection.style.display = 'block';
+        }
+
+        // Print page with selected orientation
+        function printPage() {
+            const orientation = document.getElementById('page-orientation').value;
+            const styleEl = document.getElementById('print-orientation');
+            styleEl.textContent = `@media print { @page { size: ${orientation}; } }`;
+            window.print();
+        }
+
+        // Initialize the UI
+        function init() {
+            // Render head consonants
+            const headContent = document.getElementById('head-content');
+            Object.entries(data.head).forEach(([subgroup, elements]) => {
+                renderSubgroup('head', subgroup, elements, headContent);
+            });
+
+            // Render vowels
+            const vowelContent = document.getElementById('vowel-content');
+            Object.entries(data.vowel).forEach(([subgroup, elements]) => {
+                renderSubgroup('vowel', subgroup, elements, vowelContent);
+            });
+
+            // Render tail consonants
+            const tailContent = document.getElementById('tail-content');
+            Object.entries(data.tail).forEach(([subgroup, elements]) => {
+                renderSubgroup('tail', subgroup, elements, tailContent);
+            });
+        }
+
+        // Run initialization
+        init();
+    </script>
+</body>
+</html>

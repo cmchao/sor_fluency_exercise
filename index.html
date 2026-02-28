@@ -100,6 +100,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            font-size: 1.05em;
         }
 
         .subgroup-header input[type="checkbox"] {
@@ -123,6 +124,7 @@
             border-radius: 4px;
             cursor: pointer;
             user-select: none;
+            font-size: 1.05em;
         }
 
         .consonant-section .element-checkbox {
@@ -395,6 +397,18 @@
             #output .word {
                 margin: 0 15px;
             }
+
+            #output .word .consonant-part {
+                color: #4A90A4 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            #output .word .vowel-part {
+                color: #C41E3A !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
     <style id="print-orientation">
@@ -447,13 +461,13 @@
                 <div class="option-group color-option">
                     <label>
                         <input type="checkbox" id="color-consonants" checked>
-                        Consonants in light blue
+                        Consonants are <span style="color: #4A90A4;">light blue</span>
                     </label>
                 </div>
                 <div class="option-group color-option">
                     <label>
                         <input type="checkbox" id="color-vowels" checked>
-                        Vowels in red
+                        Vowels are <span style="color: #DC143C;">red</span>
                     </label>
                 </div>
                 <div class="option-group color-option">

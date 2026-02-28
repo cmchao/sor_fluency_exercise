@@ -52,10 +52,39 @@
             border-color: #DC143C;
         }
 
-        .subgroup {
-            margin-bottom: 12px;
+        .group {
+            margin-bottom: 15px;
             padding: 10px;
             background: #fafafa;
+            border-radius: 4px;
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .group-header label {
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 1.05em;
+        }
+
+        .group-header input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .subgroup {
+            margin-bottom: 8px;
+            margin-left: 20px;
+            padding: 8px;
+            background: #f0f0f0;
             border-radius: 4px;
         }
 
@@ -74,8 +103,8 @@
         }
 
         .subgroup-header input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
         }
 
@@ -487,66 +516,189 @@
     </div>
 
     <script>
-        // Data definitions
+        // Data definitions with 3-level hierarchy for head and vowels
         const data = {
             head: {
-                easy: ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 's', 'th', 'r'],
-                complex: ['dr', 'tr', 'br', 'pr', 'bl', 'pl', 'kl', 'sl', 'sm', 'sn', 'sb', 'sd', 'sg', 'str']
+                '140': {
+                    'Sub-1': ['b', 'p', 'm', 'n'],
+                    'Sub-2': ['d', 't', 'n', 'l'],
+                    'Sub-3': ['g', 'k', 'h'],
+                    'Sub-4': ['s', 'th', 'r']
+                },
+                '280': {
+                    'Sub-1': ['dr', 'tr', 'br', 'pr'],
+                    'Sub-2': ['bl', 'pl', 'kl', 'sl'],
+                    'Sub-3': ['sm', 'sn', 'sp', 'st', 'sg', 'str']
+                }
             },
             vowel: {
-                '140': ['e', 'ai', 'a', 'ou', 'i', 'oo', 'oa', 'o', 'er', 'ar'],
-                '8800': ['a', 'e', 'i', 'o', 'u', 'a_e', 'e_e', 'i_e', 'o_e', 'u_e', 'ar', 'er', 'ir', 'or', 'ur', 'ee', 'oo', 'ou', 'oi', 'air']
+                'Basic': {
+                    'Sub-1': ['e', 'ai', 'a', 'ou'],
+                    'Sub-2': ['i', 'oo', 'oa'],
+                    'Sub-3': ['o', 'er', 'ar']
+                },
+                '8800': {
+                    'Sub-1': ['a', 'e', 'i', 'o', 'u'],
+                    'Sub-2': ['a_e', 'e_e', 'i_e', 'o_e', 'u_e'],
+                    'Sub-3': ['ar', 'er', 'ir', 'or', 'ur'],
+                    'Sub-4': ['ee', 'oo', 'ou', 'oi', 'air']
+                }
             },
             tail: {
-                single: ['s', 'ss', 'b', 'p', 'd', 't', 'g', 'ck', 'st', 'sp'],
-                nose: ['m', 'mb', 'mp', 'n', 'nd', 'nt'],
-                extra: ['ph', 'ch', 'sh', 'th']
+                'Single': ['s', 'ss', 'b', 'p', 'd', 't', 'g', 'ck', 'st', 'sp'],
+                'Nose': ['m', 'mb', 'mp', 'n', 'nd', 'nt'],
+                'Extra': ['ph', 'ch', 'sh', 'th']
             }
         };
 
-        // Render a subgroup with checkboxes
-        function renderSubgroup(category, subgroupName, elements, container) {
-            const subgroupDiv = document.createElement('div');
-            subgroupDiv.className = 'subgroup';
+        // Render a nested category (3-level: group -> sub-group -> elements)
+        function renderNestedCategory(category, groupData, container) {
+            Object.entries(groupData).forEach(([groupName, subgroups]) => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'group';
+                groupDiv.id = `${category}-${groupName}-group`;
 
-            const headerId = `${category}-${subgroupName}-all`;
-            const headerDiv = document.createElement('div');
-            headerDiv.className = 'subgroup-header';
-            headerDiv.innerHTML = `
-                <label>
-                    <input type="checkbox" id="${headerId}" onchange="toggleSubgroup('${category}', '${subgroupName}', this.checked)">
-                    ${subgroupName.charAt(0).toUpperCase() + subgroupName.slice(1)}
-                </label>
-            `;
-            subgroupDiv.appendChild(headerDiv);
-
-            const elementsDiv = document.createElement('div');
-            elementsDiv.className = 'elements';
-            elementsDiv.id = `${category}-${subgroupName}-elements`;
-
-            elements.forEach(el => {
-                const label = document.createElement('label');
-                label.className = 'element-checkbox';
-                const checkboxId = `${category}-${subgroupName}-${el}`;
-                label.innerHTML = `
-                    <input type="checkbox" id="${checkboxId}" data-category="${category}" data-subgroup="${subgroupName}" data-value="${el}" onchange="updateSubgroupCheckbox('${category}', '${subgroupName}')">
-                    <span>${el}</span>
+                // Group header
+                const groupHeaderDiv = document.createElement('div');
+                groupHeaderDiv.className = 'group-header';
+                const groupId = `${category}-${groupName}-all`;
+                groupHeaderDiv.innerHTML = `
+                    <label>
+                        <input type="checkbox" id="${groupId}" onchange="toggleGroup('${category}', '${groupName}', this.checked)">
+                        ${groupName}
+                    </label>
                 `;
-                elementsDiv.appendChild(label);
-            });
+                groupDiv.appendChild(groupHeaderDiv);
 
-            subgroupDiv.appendChild(elementsDiv);
-            container.appendChild(subgroupDiv);
+                // Sub-groups
+                Object.entries(subgroups).forEach(([subgroupName, elements]) => {
+                    const subgroupDiv = document.createElement('div');
+                    subgroupDiv.className = 'subgroup';
+
+                    const subgroupId = `${category}-${groupName}-${subgroupName}-all`;
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'subgroup-header';
+                    headerDiv.innerHTML = `
+                        <label>
+                            <input type="checkbox" id="${subgroupId}" onchange="toggleSubgroup('${category}', '${groupName}', '${subgroupName}', this.checked)">
+                            ${subgroupName}
+                        </label>
+                    `;
+                    subgroupDiv.appendChild(headerDiv);
+
+                    const elementsDiv = document.createElement('div');
+                    elementsDiv.className = 'elements';
+                    elementsDiv.id = `${category}-${groupName}-${subgroupName}-elements`;
+
+                    elements.forEach(el => {
+                        const label = document.createElement('label');
+                        label.className = 'element-checkbox';
+                        const checkboxId = `${category}-${groupName}-${subgroupName}-${el}`;
+                        label.innerHTML = `
+                            <input type="checkbox" id="${checkboxId}" data-category="${category}" data-group="${groupName}" data-subgroup="${subgroupName}" data-value="${el}" onchange="updateNestedCheckboxes('${category}', '${groupName}', '${subgroupName}')">
+                            <span>${el}</span>
+                        `;
+                        elementsDiv.appendChild(label);
+                    });
+
+                    subgroupDiv.appendChild(elementsDiv);
+                    groupDiv.appendChild(subgroupDiv);
+                });
+
+                container.appendChild(groupDiv);
+            });
         }
 
-        // Toggle all checkboxes in a subgroup
-        function toggleSubgroup(category, subgroupName, checked) {
+        // Render a flat category (2-level: subgroup -> elements) for tail consonants
+        function renderFlatCategory(category, subgroupData, container) {
+            Object.entries(subgroupData).forEach(([subgroupName, elements]) => {
+                const subgroupDiv = document.createElement('div');
+                subgroupDiv.className = 'subgroup';
+                subgroupDiv.style.marginLeft = '0';
+
+                const headerId = `${category}-${subgroupName}-all`;
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'subgroup-header';
+                headerDiv.innerHTML = `
+                    <label>
+                        <input type="checkbox" id="${headerId}" onchange="toggleFlatSubgroup('${category}', '${subgroupName}', this.checked)">
+                        ${subgroupName}
+                    </label>
+                `;
+                subgroupDiv.appendChild(headerDiv);
+
+                const elementsDiv = document.createElement('div');
+                elementsDiv.className = 'elements';
+                elementsDiv.id = `${category}-${subgroupName}-elements`;
+
+                elements.forEach(el => {
+                    const label = document.createElement('label');
+                    label.className = 'element-checkbox';
+                    const checkboxId = `${category}-${subgroupName}-${el}`;
+                    label.innerHTML = `
+                        <input type="checkbox" id="${checkboxId}" data-category="${category}" data-subgroup="${subgroupName}" data-value="${el}" onchange="updateFlatSubgroupCheckbox('${category}', '${subgroupName}')">
+                        <span>${el}</span>
+                    `;
+                    elementsDiv.appendChild(label);
+                });
+
+                subgroupDiv.appendChild(elementsDiv);
+                container.appendChild(subgroupDiv);
+            });
+        }
+
+        // Toggle all checkboxes in a group (3-level)
+        function toggleGroup(category, groupName, checked) {
+            const groupDiv = document.getElementById(`${category}-${groupName}-group`);
+            const checkboxes = groupDiv.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = checked);
+        }
+
+        // Toggle all checkboxes in a subgroup (3-level)
+        function toggleSubgroup(category, groupName, subgroupName, checked) {
+            const checkboxes = document.querySelectorAll(`#${category}-${groupName}-${subgroupName}-elements input[type="checkbox"]`);
+            checkboxes.forEach(cb => cb.checked = checked);
+            // Update subgroup header
+            const subgroupCheckbox = document.getElementById(`${category}-${groupName}-${subgroupName}-all`);
+            subgroupCheckbox.checked = checked;
+            subgroupCheckbox.indeterminate = false;
+            // Update group header
+            updateGroupCheckbox(category, groupName);
+        }
+
+        // Toggle all checkboxes in a flat subgroup (2-level)
+        function toggleFlatSubgroup(category, subgroupName, checked) {
             const checkboxes = document.querySelectorAll(`#${category}-${subgroupName}-elements input[type="checkbox"]`);
             checkboxes.forEach(cb => cb.checked = checked);
         }
 
-        // Update subgroup header checkbox based on element checkboxes
-        function updateSubgroupCheckbox(category, subgroupName) {
+        // Update nested checkboxes (element -> subgroup -> group)
+        function updateNestedCheckboxes(category, groupName, subgroupName) {
+            // Update subgroup checkbox
+            const subgroupCheckboxes = document.querySelectorAll(`#${category}-${groupName}-${subgroupName}-elements input[type="checkbox"]`);
+            const allSubgroupChecked = Array.from(subgroupCheckboxes).every(cb => cb.checked);
+            const someSubgroupChecked = Array.from(subgroupCheckboxes).some(cb => cb.checked);
+            const subgroupHeaderCheckbox = document.getElementById(`${category}-${groupName}-${subgroupName}-all`);
+            subgroupHeaderCheckbox.checked = allSubgroupChecked;
+            subgroupHeaderCheckbox.indeterminate = someSubgroupChecked && !allSubgroupChecked;
+
+            // Update group checkbox
+            updateGroupCheckbox(category, groupName);
+        }
+
+        // Update group checkbox based on all its subgroups
+        function updateGroupCheckbox(category, groupName) {
+            const groupDiv = document.getElementById(`${category}-${groupName}-group`);
+            const elementCheckboxes = groupDiv.querySelectorAll('.elements input[type="checkbox"]');
+            const allChecked = Array.from(elementCheckboxes).every(cb => cb.checked);
+            const someChecked = Array.from(elementCheckboxes).some(cb => cb.checked);
+            const groupCheckbox = document.getElementById(`${category}-${groupName}-all`);
+            groupCheckbox.checked = allChecked;
+            groupCheckbox.indeterminate = someChecked && !allChecked;
+        }
+
+        // Update flat subgroup header checkbox based on element checkboxes
+        function updateFlatSubgroupCheckbox(category, subgroupName) {
             const checkboxes = document.querySelectorAll(`#${category}-${subgroupName}-elements input[type="checkbox"]`);
             const allChecked = Array.from(checkboxes).every(cb => cb.checked);
             const someChecked = Array.from(checkboxes).some(cb => cb.checked);
@@ -686,14 +838,14 @@
         }
 
         // Create a uniform distribution pool from combinations
-        // Algorithm: shuffle 10 times, pick sequentially, repeat when exhausted
+        // Algorithm: shuffle 20 times, pick sequentially, repeat when exhausted
         function createCombinationPool(combinations, count) {
             if (combinations.length === 0) return [];
 
             const pool = [];
             while (pool.length < count) {
-                // Generate new shuffled pool (shuffle 10 times)
-                const shuffledCombinations = shuffleMultiple(combinations, 10);
+                // Generate new shuffled pool (shuffle 20 times)
+                const shuffledCombinations = shuffleMultiple(combinations, 20);
                 // Pick from first to end
                 for (const combo of shuffledCombinations) {
                     pool.push(combo);
@@ -859,23 +1011,17 @@
 
         // Initialize the UI
         function init() {
-            // Render head consonants
+            // Render head consonants (3-level hierarchy)
             const headContent = document.getElementById('head-content');
-            Object.entries(data.head).forEach(([subgroup, elements]) => {
-                renderSubgroup('head', subgroup, elements, headContent);
-            });
+            renderNestedCategory('head', data.head, headContent);
 
-            // Render vowels
+            // Render vowels (3-level hierarchy)
             const vowelContent = document.getElementById('vowel-content');
-            Object.entries(data.vowel).forEach(([subgroup, elements]) => {
-                renderSubgroup('vowel', subgroup, elements, vowelContent);
-            });
+            renderNestedCategory('vowel', data.vowel, vowelContent);
 
-            // Render tail consonants
+            // Render tail consonants (flat, 2-level hierarchy)
             const tailContent = document.getElementById('tail-content');
-            Object.entries(data.tail).forEach(([subgroup, elements]) => {
-                renderSubgroup('tail', subgroup, elements, tailContent);
-            });
+            renderFlatCategory('tail', data.tail, tailContent);
         }
 
         // Run initialization

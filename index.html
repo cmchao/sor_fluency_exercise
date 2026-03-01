@@ -309,6 +309,14 @@
             font-style: italic;
         }
 
+        /* Real word highlighting */
+        .real-word-marker {
+            text-decoration: underline;
+            text-decoration-color: #4CAF50;
+            text-decoration-thickness: 3px;
+            text-underline-offset: 4px;
+        }
+
         /* Statistics styles */
         .stats-section .section-title {
             color: #666;
@@ -406,6 +414,14 @@
 
             #output .word .vowel-part {
                 color: #C41E3A !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .real-word-marker {
+                text-decoration: underline !important;
+                text-decoration-color: #4CAF50 !important;
+                text-decoration-thickness: 3px !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -511,6 +527,12 @@
                     <label for="seed">Seed:</label>
                     <input type="number" id="seed" value="1" min="1" style="width: 80px; padding: 5px; font-size: 1em; border-radius: 4px; border: 1px solid #ccc;">
                 </div>
+                <div class="option-group color-option">
+                    <label>
+                        <input type="checkbox" id="highlight-real-words">
+                        Mark <span style="color: #4CAF50; text-decoration: underline;">real words</span>
+                    </label>
+                </div>
             </div>
         </div>
         <div class="buttons">
@@ -564,6 +586,139 @@
                 'Extra': ['ph', 'ch', 'sh', 'th']
             }
         };
+
+        // Real English words for detection (auto-generated from dictionary)
+        const realWords = new Set([
+            'bad', 'bag', 'ban', 'bat', 'bed', 'beg', 'ben', 'bet', 'bib', 'bid',
+            'big', 'bin', 'bit', 'bob', 'bog', 'bop', 'bot', 'bud', 'bug', 'bum',
+            'bun', 'bus', 'but', 'dab', 'dad', 'dam', 'dan', 'dat', 'deb', 'dem',
+            'den', 'did', 'dig', 'dim', 'din', 'dip', 'dis', 'dog', 'don', 'dos',
+            'dot', 'dub', 'dud', 'dug', 'dun', 'gab', 'gad', 'gag', 'gap', 'gas',
+            'ged', 'gem', 'gen', 'get', 'gig', 'gin', 'gob', 'god', 'gog', 'gop',
+            'got', 'gum', 'gun', 'gus', 'gut', 'had', 'hag', 'ham', 'han', 'has',
+            'hat', 'hem', 'hen', 'hep', 'hes', 'hid', 'him', 'hip', 'his', 'hit',
+            'hob', 'hod', 'hog', 'hon', 'hop', 'hos', 'hot', 'hub', 'hud', 'hug',
+            'hum', 'hun', 'hus', 'hut', 'keg', 'ken', 'kid', 'kim', 'kin', 'kip',
+            'kit', 'lab', 'lad', 'lag', 'lam', 'lap', 'las', 'lat', 'led', 'leg',
+            'len', 'les', 'let', 'lib', 'lid', 'lin', 'lip', 'lit', 'lob', 'log',
+            'lon', 'lop', 'los', 'lot', 'lug', 'mad', 'man', 'map', 'mas', 'mat',
+            'med', 'meg', 'men', 'mes', 'met', 'mid', 'mig', 'min', 'mit', 'mob',
+            'mod', 'mom', 'mon', 'mop', 'mos', 'mud', 'mug', 'mum', 'nab', 'nag',
+            'nam', 'nan', 'nap', 'nat', 'ned', 'neg', 'net', 'nib', 'nip', 'nit',
+            'nod', 'non', 'nos', 'not', 'nub', 'nun', 'nut', 'pad', 'pam', 'pan',
+            'pap', 'pas', 'pat', 'peg', 'pen', 'pep', 'pet', 'pig', 'pin', 'pip',
+            'pis', 'pit', 'pod', 'pop', 'pot', 'pub', 'pug', 'pun', 'pup', 'pus',
+            'put', 'rag', 'ram', 'ran', 'rap', 'rat', 'red', 'rem', 'rep', 'rib',
+            'rid', 'rig', 'rim', 'rip', 'rob', 'rod', 'rom', 'ron', 'rot', 'rub',
+            'rug', 'rum', 'run', 'rut', 'sad', 'sag', 'sam', 'san', 'sap', 'sat',
+            'sen', 'sep', 'set', 'sid', 'sim', 'sin', 'sip', 'sis', 'sit', 'sob',
+            'sod', 'son', 'sop', 'sos', 'sot', 'sub', 'sum', 'sun', 'sup', 'tab',
+            'tad', 'tag', 'tam', 'tan', 'tap', 'tat', 'ted', 'ten', 'tet', 'tim',
+            'tin', 'tip', 'tit', 'tod', 'tog', 'tom', 'ton', 'top', 'tot', 'tub',
+            'tug', 'tun', 'tut',
+            'babe', 'bach', 'back', 'bade', 'bait', 'band', 'bane', 'barb', 'bard', 'barn',
+            'bars', 'bart', 'base', 'bash', 'bass', 'bast', 'bate', 'bath', 'beck', 'bede',
+            'been', 'beep', 'bees', 'beet', 'bend', 'bent', 'berg', 'berm', 'bern', 'bert',
+            'bess', 'best', 'beth', 'bide', 'bind', 'bird', 'bite', 'blab', 'blat', 'bled',
+            'blip', 'blob', 'blog', 'blot', 'boas', 'boat', 'bode', 'bomb', 'bond', 'bone',
+            'boob', 'boom', 'boon', 'boos', 'boot', 'borg', 'born', 'bose', 'bosh', 'boss',
+            'both', 'bout', 'brad', 'brag', 'bran', 'bras', 'brat', 'bred', 'bret', 'brig',
+            'brim', 'brit', 'bros', 'brut', 'buck', 'bump', 'bunt', 'burg', 'burn', 'burp',
+            'burs', 'burt', 'bush', 'buss', 'bust', 'dais', 'dame', 'damp', 'dane', 'darn',
+            'dart', 'dash', 'date', 'deck', 'deed', 'deem', 'deep', 'dent', 'dick', 'dime',
+            'dine', 'dint', 'dirt', 'dish', 'diss', 'dock', 'dome', 'done', 'doom', 'dope',
+            'dorm', 'dose', 'dote', 'doth', 'doug', 'drab', 'drag', 'dram', 'drip', 'drop',
+            'drub', 'drug', 'drum', 'duck', 'dude', 'dumb', 'dump', 'dune', 'dupe', 'duse',
+            'dust', 'gage', 'gain', 'gait', 'game', 'gape', 'garb', 'gash', 'gasp', 'gate',
+            'geed', 'gees', 'gene', 'gent', 'germ', 'gibe', 'gide', 'gird', 'girt', 'gish',
+            'gist', 'goad', 'goat', 'gone', 'good', 'goon', 'goop', 'gorp', 'gosh', 'goth',
+            'gout', 'gush', 'gust', 'hack', 'hand', 'hard', 'harm', 'harp', 'hart', 'hash',
+            'hasp', 'hate', 'hath', 'hebe', 'heck', 'heed', 'heep', 'hemp', 'herb', 'herd',
+            'hers', 'hess', 'hick', 'hide', 'hind', 'hint', 'hiss', 'hock', 'home', 'hone',
+            'hood', 'hoop', 'hoot', 'hope', 'horn', 'hose', 'host', 'huck', 'huge', 'hume',
+            'hump', 'hunt', 'hurd', 'hurt', 'hush', 'kane', 'kant', 'kate', 'keck', 'keen',
+            'keep', 'kemp', 'kent', 'kerb', 'kern', 'kick', 'kind', 'kiss', 'kite', 'kith',
+            'klan', 'koan', 'kobe', 'koch', 'kurd', 'kurt', 'lack', 'lade', 'laid', 'lain',
+            'lamb', 'lame', 'lamp', 'land', 'lane', 'lard', 'lars', 'lase', 'lash', 'lass',
+            'last', 'late', 'lath', 'lees', 'lend', 'lent', 'less', 'lest', 'lick', 'limb',
+            'lime', 'limp', 'lind', 'line', 'lint', 'lisp', 'list', 'lite', 'load', 'loam',
+            'loan', 'lobe', 'lock', 'lode', 'loge', 'loin', 'lois', 'lome', 'lone', 'loom',
+            'loon', 'loop', 'loot', 'lope', 'lord', 'lorn', 'lose', 'loss', 'lost', 'loth',
+            'loud', 'lout', 'lube', 'luck', 'lump', 'lupe', 'lush', 'lust', 'lute', 'mach',
+            'mack', 'made', 'maid', 'maim', 'main', 'mane', 'mars', 'mart', 'mash', 'mass',
+            'mast', 'mate', 'math', 'meet', 'meme', 'mend', 'mesh', 'mess', 'mete', 'mich',
+            'mick', 'mime', 'mind', 'mine', 'mint', 'miss', 'mist', 'mite', 'moan', 'moat',
+            'mock', 'mode', 'mont', 'mood', 'moog', 'moon', 'moos', 'moot', 'mope', 'morn',
+            'mort', 'moss', 'most', 'mote', 'moth', 'much', 'muck', 'muse', 'mush', 'muss',
+            'must', 'mute', 'name', 'nape', 'nash', 'nate', 'neck', 'need', 'nerd', 'nest',
+            'nick', 'nine', 'nite', 'node', 'nome', 'none', 'noon', 'nope', 'norm', 'nose',
+            'nosh', 'note', 'noun', 'nous', 'nude', 'numb', 'pack', 'page', 'paid', 'pain',
+            'pane', 'pant', 'pars', 'part', 'pass', 'past', 'pate', 'path', 'peck', 'peed',
+            'peep', 'pees', 'pend', 'pent', 'perm', 'pert', 'pest', 'pete', 'pick', 'pimp',
+            'pine', 'pint', 'pipe', 'piss', 'pith', 'plan', 'pled', 'plod', 'plop', 'plot',
+            'plug', 'plum', 'plus', 'pock', 'pomp', 'pond', 'pone', 'poop', 'pope', 'porn',
+            'port', 'pose', 'posh', 'poss', 'post', 'pout', 'pram', 'prep', 'pres', 'prig',
+            'prim', 'prod', 'prom', 'pron', 'prop', 'pros', 'prut', 'puck', 'pump', 'punt',
+            'push', 'puss', 'rack', 'rage', 'raid', 'rain', 'ramp', 'rand', 'rant', 'rape',
+            'rash', 'rasp', 'rate', 'reed', 'rend', 'rene', 'rent', 'resp', 'rest', 'rich',
+            'rick', 'ride', 'rime', 'rind', 'ripe', 'rise', 'rite', 'road', 'roam', 'roan',
+            'robe', 'rock', 'rode', 'rome', 'romp', 'rood', 'room', 'root', 'rope', 'rose',
+            'ross', 'rote', 'roth', 'rout', 'rube', 'rude', 'rump', 'rune', 'runt', 'ruse',
+            'rush', 'russ', 'rust', 'ruth', 'sack', 'sade', 'sage', 'said', 'same', 'sand',
+            'sane', 'sars', 'sase', 'sash', 'sass', 'sate', 'seed', 'seem', 'seen', 'seep',
+            'sees', 'send', 'sent', 'serb', 'seth', 'sick', 'side', 'sine', 'sirs', 'site',
+            'slab', 'slag', 'slam', 'slap', 'slat', 'sled', 'slid', 'slim', 'slip', 'slit',
+            'slob', 'slog', 'slop', 'slot', 'slug', 'slum', 'slut', 'smit', 'smog', 'smug',
+            'smut', 'snag', 'snap', 'snip', 'snit', 'snob', 'snot', 'snub', 'snug', 'soap',
+            'sock', 'some', 'soon', 'soot', 'sort', 'soup', 'spam', 'span', 'spas', 'spat',
+            'sped', 'spin', 'spit', 'spot', 'spud', 'spun', 'stab', 'stag', 'stan', 'stat',
+            'stem', 'step', 'stop', 'stub', 'stud', 'stun', 'such', 'suck', 'sump', 'suse',
+            'tack', 'tame', 'tamp', 'tape', 'tarp', 'tars', 'tart', 'tass', 'tate', 'tech',
+            'teed', 'teem', 'teen', 'tees', 'temp', 'tend', 'tent', 'term', 'tern', 'tess',
+            'test', 'thad', 'than', 'that', 'them', 'then', 'thin', 'this', 'thud', 'thug',
+            'thus', 'tick', 'tide', 'time', 'tine', 'tint', 'toad', 'tomb', 'tome', 'tone',
+            'toot', 'torn', 'tors', 'tort', 'toss', 'tost', 'tote', 'tout', 'tram', 'tran',
+            'trap', 'trig', 'trim', 'trip', 'trod', 'tron', 'trot', 'tube', 'tuck', 'tune',
+            'turd', 'turn', 'tush',
+            'baird', 'barth', 'baste', 'bathe', 'beech', 'berth', 'bethe', 'birch', 'birth', 'black',
+            'blade', 'blame', 'bland', 'blast', 'bleed', 'bleep', 'blend', 'blent', 'bless', 'blest',
+            'blimp', 'blind', 'bliss', 'bloat', 'bloch', 'block', 'blond', 'blood', 'bloom', 'blunt',
+            'blurb', 'blurs', 'blurt', 'blush', 'boast', 'boost', 'booth', 'bound', 'braid', 'brain',
+            'brand', 'brant', 'brash', 'brass', 'breed', 'brent', 'brest', 'bribe', 'brick', 'bride',
+            'brine', 'broad', 'brock', 'brood', 'broom', 'broth', 'brunt', 'brush', 'brute', 'burch',
+            'burnt', 'burst', 'dante', 'darth', 'drain', 'drape', 'dress', 'droid', 'drone', 'droop',
+            'dross', 'garth', 'girth', 'hairs', 'harsh', 'haste', 'hesse', 'hoist', 'hooch', 'hound',
+            'hurst', 'kline', 'kluge', 'lairs', 'larch', 'lathe', 'leech', 'lethe', 'lithe', 'loath',
+            'locke', 'lurch', 'march', 'marsh', 'merck', 'mirth', 'moist', 'monte', 'mooch', 'mound',
+            'mount', 'mouth', 'niche', 'north', 'paint', 'pairs', 'parch', 'paste', 'perch', 'perth',
+            'plaid', 'plain', 'plait', 'plane', 'plant', 'plate', 'plath', 'pluck', 'plumb', 'plume',
+            'plump', 'plush', 'poach', 'point', 'pooch', 'porch', 'posse', 'pouch', 'pound', 'prate',
+            'preen', 'press', 'prick', 'pride', 'prime', 'primp', 'print', 'prise', 'probe', 'prone',
+            'prose', 'proud', 'prude', 'prune', 'roach', 'roast', 'roche', 'roost', 'round', 'saint',
+            'saiph', 'saith', 'slack', 'slain', 'slant', 'slash', 'slate', 'sleep', 'sleet', 'slick',
+            'slide', 'slime', 'sloan', 'sloop', 'slope', 'slosh', 'sloth', 'slump', 'slurp', 'slurs',
+            'slush', 'smack', 'smart', 'smash', 'smite', 'smith', 'smock', 'smote', 'snack', 'snide',
+            'snipe', 'snoop', 'snoot', 'snort', 'snout', 'snuck', 'sooth', 'sound', 'south', 'spade',
+            'spain', 'spars', 'spate', 'speck', 'speed', 'spend', 'spent', 'sperm', 'spine', 'spite',
+            'spock', 'spoon', 'sport', 'spout', 'spume', 'spurn', 'spurs', 'spurt', 'stack', 'stage',
+            'staid', 'stain', 'stamp', 'stand', 'staph', 'stars', 'start', 'stash', 'state', 'steed',
+            'steep', 'stent', 'stern', 'stick', 'stine', 'stint', 'stirs', 'stoat', 'stock', 'stomp',
+            'stone', 'stood', 'stoop', 'storm', 'stout', 'strap', 'strep', 'strip', 'strop', 'strum',
+            'strut', 'stuck', 'stump', 'stunt', 'taint', 'taste', 'teeth', 'tempe', 'thais', 'thant',
+            'tharp', 'thees', 'theme', 'these', 'thick', 'thine', 'third', 'thorn', 'those', 'thoth',
+            'thous', 'thumb', 'thump', 'thurs', 'tithe', 'toast', 'tooth', 'torch', 'touch', 'track',
+            'trade', 'train', 'trait', 'tramp', 'trash', 'treed', 'trees', 'trend', 'trent', 'tress',
+            'tribe', 'trick', 'tripe', 'trite', 'tromp', 'troop', 'trope', 'troth', 'trout', 'truck',
+            'trump', 'truss', 'trust', 'truth',
+            'blithe', 'blonde', 'breech', 'broach', 'bronte', 'brooch', 'drouth', 'plaint', 'proust', 'slouch',
+            'smirch', 'smooch', 'smooth', 'speech', 'stairs', 'starch', 'strain', 'strait', 'strand', 'street',
+            'stress', 'stride', 'stripe', 'strobe', 'strode', 'struck', 'thirst',
+            'strophe'
+        ]);
+
+        function isRealWord(word) {
+            return realWords.has(word.toLowerCase());
+        }
 
         // Render a nested category (3-level: group -> sub-group -> elements)
         function renderNestedCategory(category, groupData, container) {
@@ -730,13 +885,14 @@
         // Generate a single word from head + vowel + tail
         // Returns object with parts for coloring
         function generateWord(head, vowel, tail) {
+            let wordObj;
             // Check if vowel contains magic-e pattern
             if (vowel.includes('_')) {
                 // Split on underscore: a_e becomes ['a', 'e']
                 const parts = vowel.split('_');
                 // Pattern: head + first part + tail + second part
                 // For magic-e: head is consonant, vowel part is first+second, tail is consonant
-                return {
+                wordObj = {
                     head: head,
                     vowel: parts[0],
                     tail: tail,
@@ -745,7 +901,7 @@
                 };
             } else {
                 // Standard pattern
-                return {
+                wordObj = {
                     head: head,
                     vowel: vowel,
                     tail: tail,
@@ -753,16 +909,23 @@
                     full: head + vowel + tail
                 };
             }
+            wordObj.isReal = isRealWord(wordObj.full);
+            return wordObj;
         }
 
         // Format word with colors based on options
         function formatWord(wordObj) {
             const colorConsonants = document.getElementById('color-consonants').checked;
             const colorVowels = document.getElementById('color-vowels').checked;
+            const highlightRealWords = document.getElementById('highlight-real-words').checked;
 
             if (!colorConsonants && !colorVowels) {
                 // No coloring, return plain text
-                return wordObj.full;
+                let html = wordObj.full;
+                if (highlightRealWords && wordObj.isReal) {
+                    html = `<span class="real-word-marker">${html}</span>`;
+                }
+                return html;
             }
 
             let html = '';
@@ -795,6 +958,10 @@
                 } else {
                     html += wordObj.magicE;
                 }
+            }
+
+            if (highlightRealWords && wordObj.isReal) {
+                html = `<span class="real-word-marker">${html}</span>`;
             }
 
             return html;

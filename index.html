@@ -15,6 +15,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
             padding: 20px;
+            padding-bottom: 150px;
             max-width: 900px;
             margin: 0 auto;
             background: #f5f5f5;
@@ -304,30 +305,38 @@
             text-align: left;
         }
 
-        #output .reference-block {
-            grid-column: 1 / -1;
-            margin-top: 20px;
+        .reference-block {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 860px;
+            background: white;
+            border-radius: 8px 8px 0 0;
             padding: 15px;
-            border: 1px dashed #ccc;
-            border-radius: 4px;
-            background: #fafafa;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
         }
 
-        #output .reference-block-title {
-            font-weight: bold;
+        .reference-block .section-title {
             color: #666;
-            margin-bottom: 10px;
+            border-color: #999;
         }
 
-        #output .reference-lines {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .acknowledgements-text {
+            color: #555;
+            line-height: 1.5;
+            margin: 0;
         }
 
-        #output .reference-line {
-            border-bottom: 1px solid #333;
-            height: 1.5em;
+        .acknowledgements-text a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+
+        .acknowledgements-text a:hover {
+            text-decoration: underline;
         }
 
         #output .word .consonant-part {
@@ -505,6 +514,18 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
+
+            .reference-block {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                max-width: none;
+                transform: none;
+                border-radius: 0;
+                box-shadow: none;
+                border-top: 1px dashed #333;
+            }
         }
     </style>
     <style id="print-orientation">
@@ -584,12 +605,6 @@
                         Show Tutor field
                     </label>
                 </div>
-                <div class="option-group color-option">
-                    <label>
-                        <input type="checkbox" id="show-reference-block">
-                        Show Reference & Inspiration
-                    </label>
-                </div>
                 <div class="option-group">
                     <label for="font-size">Font size:</label>
                     <select id="font-size">
@@ -647,6 +662,11 @@
     <div class="section stats-section" id="stats-section" style="display: none;">
         <div class="section-title">STATISTICS</div>
         <div id="stats"></div>
+    </div>
+
+    <div class="reference-block">
+        <div class="section-title">ACKNOWLEDGEMENTS</div>
+        <p class="acknowledgements-text">This work is made possible thanks to the pioneering research and vision of <a href="https://www.facebook.com/wen.hsiao.100">Wen Hsiao</a> and the Taiwan SOR team. To learn more about their mission, please visit Milinguall at <a href="https://milinguall.com">milinguall.com</a> and <a href="https://milinguall.org">milinguall.org</a>.</p>
     </div>
 
     <script>
@@ -1186,7 +1206,6 @@
             const showScoreColumn = document.getElementById('show-score-column').checked;
             const showAuthorField = document.getElementById('show-author-field').checked;
             const showTutorField = document.getElementById('show-tutor-field').checked;
-            const showReferenceBlock = document.getElementById('show-reference-block').checked;
 
             // Render output as grid
             let html = '';
@@ -1222,18 +1241,6 @@
                     html += `<div class="row-separator" style="grid-column: 1 / -1;"></div>`;
                 }
             });
-
-            // Add reference block if enabled
-            if (showReferenceBlock) {
-                html += `<div class="reference-block">`;
-                html += `<div class="reference-block-title">Reference & Inspiration:</div>`;
-                html += `<div class="reference-lines">`;
-                html += `<div class="reference-line"></div>`;
-                html += `<div class="reference-line"></div>`;
-                html += `<div class="reference-line"></div>`;
-                html += `</div>`;
-                html += `</div>`;
-            }
 
             outputDiv.innerHTML = html;
             outputDiv.style.fontSize = fontSize + 'pt';

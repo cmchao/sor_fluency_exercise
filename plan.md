@@ -80,3 +80,82 @@ Change from 2-level (category -> subgroup) to 3-level (category -> group -> sub-
 2. Print/PDF button works
 3. 3-level checkbox hierarchy works (group -> sub-group -> elements)
 4. Statistics section appears after generation
+
+---
+
+# Real Word Detection Feature
+
+## Status: COMPLETED
+
+## Task
+Check if each generated word is a real English word and highlight/mark real words differently from nonsense words.
+
+## Approach
+Embed a list of English words as a JavaScript `Set` for O(1) lookup. Works offline (file:// protocol) with no external dependencies.
+
+## Word List Generation
+Used `generate_wordlist.py` to:
+1. Generate all 11,880 possible combinations from head/vowel/tail data
+2. Check each against `/usr/share/dict/words` (75,145 words)
+3. Found 1,218 real English words
+
+## Changes Made to `index.html`
+
+### 1. CSS styles for real word highlighting
+```css
+.real-word-marker {
+    text-decoration: underline;
+    text-decoration-color: #4CAF50;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 4px;
+}
+```
+
+### 2. Print styles (in @media print)
+```css
+.real-word-marker {
+    text-decoration: underline !important;
+    text-decoration-color: #4CAF50 !important;
+    text-decoration-thickness: 3px !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+```
+
+### 3. UI toggle in Extra options section
+```html
+<div class="option-group color-option">
+    <label>
+        <input type="checkbox" id="highlight-real-words">
+        Mark <span style="color: #4CAF50; text-decoration: underline;">real words</span>
+    </label>
+</div>
+```
+
+### 4. Word list and detection function
+- `realWords` - Set containing 1,218 dictionary-verified words
+- `isRealWord(word)` - Returns true if word is in the Set
+
+### 5. Modified `generateWord()` function
+Added `isReal` property to the returned word object:
+```javascript
+wordObj.isReal = isRealWord(wordObj.full);
+```
+
+### 6. Modified `formatWord()` function
+Wraps output in marker span if word is real and option is enabled:
+```javascript
+if (highlightRealWords && wordObj.isReal) {
+    html = `<span class="real-word-marker">${html}</span>`;
+}
+```
+
+## Files
+- `index.html` - Main application with real word detection
+- `generate_wordlist.py` - Utility script to regenerate word list from dictionary
+
+## Verification
+1. Check "Mark real words" option in Extra section
+2. Generate words - real words have green underline
+3. Print/PDF - verify underline appears
+4. Words like "bat", "bind", "dog" are marked; nonsense words are not

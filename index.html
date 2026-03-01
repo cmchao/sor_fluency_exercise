@@ -268,19 +268,66 @@
             margin: 0;
         }
 
-        #output .score-header {
-            font-weight: bold;
-            color: #666;
-            text-align: center;
-            padding: 10px;
-            border-bottom: 1px dashed #ccc;
-        }
-
         #output .score-cell {
             text-align: center;
             padding: 10px;
             min-width: 60px;
             border-left: 1px solid #ccc;
+        }
+
+        #output .header-left {
+            display: flex;
+            gap: 20px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+
+        #output .header-field {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        #output .header-field-line {
+            border-bottom: 1px solid #333;
+            min-width: 120px;
+            height: 1.2em;
+        }
+
+        #output .header-score {
+            font-weight: bold;
+            color: #666;
+            padding: 10px 0;
+            border-bottom: 1px dashed #ccc;
+            text-align: left;
+        }
+
+        #output .reference-block {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        #output .reference-block-title {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        #output .reference-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #output .reference-line {
+            border-bottom: 1px solid #333;
+            height: 1.5em;
         }
 
         #output .word .consonant-part {
@@ -324,12 +371,12 @@
         }
 
         .stats-category {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .stats-category-title {
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
         .stats-category-title.consonant {
@@ -340,26 +387,59 @@
             color: #C41E3A;
         }
 
-        .stats-items {
+        .stats-bar-container {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        .stats-item {
-            padding: 3px 8px;
-            border-radius: 4px;
+        .stats-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stats-bar-label {
+            width: 40px;
             font-family: monospace;
+            font-weight: bold;
+            text-align: right;
         }
 
-        .stats-item.consonant {
-            background: #E6F3F7;
+        .stats-bar-label.consonant {
             color: #87CEEB;
         }
 
-        .stats-item.vowel {
-            background: #FCE4E8;
+        .stats-bar-label.vowel {
             color: #C41E3A;
+        }
+
+        .stats-bar-wrapper {
+            flex: 1;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .stats-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .stats-bar.consonant {
+            background: #87CEEB;
+        }
+
+        .stats-bar.vowel {
+            background: #C41E3A;
+        }
+
+        .stats-bar-value {
+            width: 80px;
+            font-size: 0.85em;
+            color: #666;
         }
 
         /* Print styles */
@@ -490,6 +570,24 @@
                     <label>
                         <input type="checkbox" id="show-score-column">
                         Show score column
+                    </label>
+                </div>
+                <div class="option-group color-option">
+                    <label>
+                        <input type="checkbox" id="show-author-field">
+                        Show Author field
+                    </label>
+                </div>
+                <div class="option-group color-option">
+                    <label>
+                        <input type="checkbox" id="show-tutor-field">
+                        Show Tutor field
+                    </label>
+                </div>
+                <div class="option-group color-option">
+                    <label>
+                        <input type="checkbox" id="show-reference-block">
+                        Show Reference & Inspiration
                     </label>
                 </div>
                 <div class="option-group">
@@ -1086,17 +1184,28 @@
             const fontSize = document.getElementById('font-size').value;
             const fontStyle = document.getElementById('font-style').value;
             const showScoreColumn = document.getElementById('show-score-column').checked;
+            const showAuthorField = document.getElementById('show-author-field').checked;
+            const showTutorField = document.getElementById('show-tutor-field').checked;
+            const showReferenceBlock = document.getElementById('show-reference-block').checked;
 
             // Render output as grid
             let html = '';
 
-            // Add header row if score column is enabled
-            if (showScoreColumn) {
-                html += `<span class="score-header"></span>`; // empty cell for number column
-                for (let i = 0; i < elementsPerGroup; i++) {
-                    html += `<span class="score-header"></span>`; // empty cells for word columns
+            // Add header row with Author/Tutor (left, spanning all but last column) and Score (last column)
+            if (showAuthorField || showTutorField || showScoreColumn) {
+                // Calculate grid-column span for left section
+                const leftSpan = showScoreColumn ? `1 / -2` : `1 / -1`;
+                html += `<div class="header-left" style="grid-column: ${leftSpan};">`;
+                if (showAuthorField) {
+                    html += `<span class="header-field">Author: <span class="header-field-line"></span></span>`;
                 }
-                html += `<span class="score-header">Score</span>`;
+                if (showTutorField) {
+                    html += `<span class="header-field">Tutor: <span class="header-field-line"></span></span>`;
+                }
+                html += `</div>`;
+                if (showScoreColumn) {
+                    html += `<div class="header-score" style="grid-column: -2 / -1;">Score</div>`;
+                }
             }
 
             groups.forEach((words, index) => {
@@ -1113,6 +1222,18 @@
                     html += `<div class="row-separator" style="grid-column: 1 / -1;"></div>`;
                 }
             });
+
+            // Add reference block if enabled
+            if (showReferenceBlock) {
+                html += `<div class="reference-block">`;
+                html += `<div class="reference-block-title">Reference & Inspiration:</div>`;
+                html += `<div class="reference-lines">`;
+                html += `<div class="reference-line"></div>`;
+                html += `<div class="reference-line"></div>`;
+                html += `<div class="reference-line"></div>`;
+                html += `</div>`;
+                html += `</div>`;
+            }
 
             outputDiv.innerHTML = html;
             outputDiv.style.fontSize = fontSize + 'pt';
@@ -1146,37 +1267,32 @@
 
             const totalWords = combinationPool.length;
 
+            function renderBarChart(counts, type, title) {
+                const maxCount = Math.max(...Object.values(counts));
+                let html = '<div class="stats-category">';
+                html += `<div class="stats-category-title ${type}">${title}</div>`;
+                html += '<div class="stats-bar-container">';
+
+                Object.entries(counts).sort((a, b) => b[1] - a[1]).forEach(([el, count]) => {
+                    const pct = ((count / totalWords) * 100).toFixed(1);
+                    const barWidth = (count / maxCount) * 100;
+                    html += `<div class="stats-bar-row">`;
+                    html += `<span class="stats-bar-label ${type}">${el}</span>`;
+                    html += `<div class="stats-bar-wrapper">`;
+                    html += `<div class="stats-bar ${type}" style="width: ${barWidth}%"></div>`;
+                    html += `</div>`;
+                    html += `<span class="stats-bar-value">${count} (${pct}%)</span>`;
+                    html += `</div>`;
+                });
+
+                html += '</div></div>';
+                return html;
+            }
+
             let html = '';
-
-            // Head consonants stats
-            html += '<div class="stats-category">';
-            html += '<div class="stats-category-title consonant">Head Consonants</div>';
-            html += '<div class="stats-items">';
-            Object.entries(headCounts).sort((a, b) => b[1] - a[1]).forEach(([el, count]) => {
-                const pct = ((count / totalWords) * 100).toFixed(1);
-                html += `<span class="stats-item consonant">${el}: ${count} (${pct}%)</span>`;
-            });
-            html += '</div></div>';
-
-            // Vowels stats
-            html += '<div class="stats-category">';
-            html += '<div class="stats-category-title vowel">Vowels</div>';
-            html += '<div class="stats-items">';
-            Object.entries(vowelCounts).sort((a, b) => b[1] - a[1]).forEach(([el, count]) => {
-                const pct = ((count / totalWords) * 100).toFixed(1);
-                html += `<span class="stats-item vowel">${el}: ${count} (${pct}%)</span>`;
-            });
-            html += '</div></div>';
-
-            // Tail consonants stats
-            html += '<div class="stats-category">';
-            html += '<div class="stats-category-title consonant">Tail Consonants</div>';
-            html += '<div class="stats-items">';
-            Object.entries(tailCounts).sort((a, b) => b[1] - a[1]).forEach(([el, count]) => {
-                const pct = ((count / totalWords) * 100).toFixed(1);
-                html += `<span class="stats-item consonant">${el}: ${count} (${pct}%)</span>`;
-            });
-            html += '</div></div>';
+            html += renderBarChart(headCounts, 'consonant', 'Head Consonants');
+            html += renderBarChart(vowelCounts, 'vowel', 'Vowels');
+            html += renderBarChart(tailCounts, 'consonant', 'Tail Consonants');
 
             statsDiv.innerHTML = html;
             statsSection.style.display = 'block';

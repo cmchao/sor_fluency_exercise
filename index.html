@@ -488,11 +488,21 @@
 
             #output {
                 font-size: 18pt;
-                gap: 15px 25px;
+                gap: 2px 15px;
             }
 
             #output .word {
-                margin: 0 15px;
+                margin: 0 5px;
+                padding: 1px 0;
+            }
+
+            #output .group-number {
+                padding: 1px 5px 1px 0;
+            }
+
+
+            #output .header-left, #output .header-score {
+                padding: 2px 0;
             }
 
             #output .word .consonant-part {
@@ -516,15 +526,7 @@
             }
 
             .reference-block {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                max-width: none;
-                transform: none;
-                border-radius: 0;
-                box-shadow: none;
-                border-top: 1px dashed #333;
+                display: none !important;
             }
         }
     </style>
@@ -1309,7 +1311,7 @@
         function printPage() {
             const orientation = document.getElementById('page-orientation').value;
             const styleEl = document.getElementById('print-orientation');
-            styleEl.textContent = `@media print { @page { size: ${orientation}; } }`;
+            styleEl.textContent = `@media print { @page { size: ${orientation}; margin: 10mm; } }`;
             window.print();
         }
 

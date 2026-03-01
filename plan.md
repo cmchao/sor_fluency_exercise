@@ -159,3 +159,49 @@ if (highlightRealWords && wordObj.isReal) {
 2. Generate words - real words have green underline
 3. Print/PDF - verify underline appears
 4. Words like "bat", "bind", "dog" are marked; nonsense words are not
+
+---
+
+# UI Enhancements
+
+## Status: COMPLETED
+
+## Changes Made
+
+### 1. Title Rename
+Changed from "SOR Spelling Exercise Generator" to "Taiwan SOR Fluency Exercise Generator"
+
+### 2. Statistics Bar Charts
+Replaced text-based statistics chips with horizontal bar charts:
+- Each bar's width is proportional to max count in category
+- Labels on left, bars in middle, count/percentage on right
+- Light blue (#87CEEB) for consonants, red (#C41E3A) for vowels
+
+### 3. Header Fields (Author & Tutor)
+Added optional fields in output header row:
+- "Show Author field" checkbox - adds Author: with fill-in line
+- "Show Tutor field" checkbox - adds Tutor: with fill-in line
+- Fields appear left-aligned in same row as Score (right-aligned)
+- Score label aligns with score column grid
+
+### 4. Fixed Acknowledgements Section
+Added always-visible acknowledgements block at bottom of page:
+- Fixed position, not affected by scrolling
+- Styled to match other sections (white background, rounded corners, shadow)
+- Credits Wen Hsiao and Taiwan SOR team with links to:
+  - facebook.com/wen.hsiao.100
+  - milinguall.com
+  - milinguall.org
+
+### 5. Label Updates
+- "Elements per group" → "Words per group"
+
+## Files Modified
+- `index.html` - All UI changes
+
+## Verification
+1. Title displays "Taiwan SOR Fluency Exercise Generator"
+2. Statistics section shows bar charts after generation
+3. Author/Tutor checkboxes add header fields when enabled
+4. Acknowledgements block fixed at bottom, always visible
+5. All features print correctly

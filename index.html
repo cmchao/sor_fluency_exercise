@@ -1122,13 +1122,35 @@
             return shuffled.slice(0, Math.min(count, shuffled.length));
         }
 
-        // Generate all possible combinations of heads × vowels × tails
-        function generateAllCombinations(heads, vowels, tails) {
+        // Generate all possible combinations based on mode
+        // c1vc2: heads × vowels × tails
+        // c1v: heads × vowels (no tail)
+        // vc2: vowels × tails (no head)
+        // v: vowels only (no consonants)
+        function generateAllCombinations(heads, vowels, tails, mode) {
             const combinations = [];
-            for (const head of heads) {
+            if (mode === 'v') {
+                for (const vowel of vowels) {
+                    combinations.push({ head: '', vowel, tail: '' });
+                }
+            } else if (mode === 'c1v') {
+                for (const head of heads) {
+                    for (const vowel of vowels) {
+                        combinations.push({ head, vowel, tail: '' });
+                    }
+                }
+            } else if (mode === 'vc2') {
                 for (const vowel of vowels) {
                     for (const tail of tails) {
-                        combinations.push({ head, vowel, tail });
+                        combinations.push({ head: '', vowel, tail });
+                    }
+                }
+            } else { // c1vc2
+                for (const head of heads) {
+                    for (const vowel of vowels) {
+                        for (const tail of tails) {
+                            combinations.push({ head, vowel, tail });
+                        }
                     }
                 }
             }
@@ -1179,10 +1201,22 @@
 
             const outputDiv = document.getElementById('output');
 
-            // Validation
-            if (heads.length === 0 || vowels.length === 0 || tails.length === 0) {
-                outputDiv.innerHTML = '<p class="error">Please select at least one element from each section (head, vowel, tail).</p>';
+            // Vowels are always required
+            if (vowels.length === 0) {
+                outputDiv.innerHTML = '<p class="error">Please select at least one vowel.</p>';
                 return;
+            }
+
+            // Auto-detect combination mode based on selections
+            let combinationMode;
+            if (heads.length > 0 && tails.length > 0) {
+                combinationMode = 'c1vc2';
+            } else if (heads.length > 0) {
+                combinationMode = 'c1v';
+            } else if (tails.length > 0) {
+                combinationMode = 'vc2';
+            } else {
+                combinationMode = 'v';
             }
 
             // Check if random is disabled
@@ -1207,7 +1241,7 @@
             const totalWords = elementsPerGroup * numGroups;
 
             // Generate all possible combinations and create uniform pool
-            const allCombinations = generateAllCombinations(heads, vowels, tails);
+            const allCombinations = generateAllCombinations(heads, vowels, tails, combinationMode);
             const combinationPool = createCombinationPool(allCombinations, totalWords, disableRandom);
 
             const groups = [];

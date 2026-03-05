@@ -47,7 +47,7 @@ def flatten(data):
     return list(set(result))  # Remove duplicates
 
 def generate_word(h, v, t):
-    """Generate word from head, vowel, tail."""
+    """Generate word from head, vowel, tail (any can be empty)."""
     if '_' in v:
         parts = v.split('_')
         return h + parts[0] + t + parts[1]
@@ -67,9 +67,10 @@ def load_dictionary():
         try:
             with open(path, 'r') as f:
                 for line in f:
-                    word = line.strip().lower()
-                    # Only include words without apostrophes
-                    if "'" not in word:
+                    word = line.strip()
+                    # Only include lowercase words (excludes abbreviations like BA, Bi, etc.)
+                    # and words without apostrophes
+                    if word.islower() and "'" not in word:
                         words.add(word)
         except FileNotFoundError:
             continue
@@ -85,15 +86,46 @@ def main():
     print(f"Tails ({len(tails)}): {sorted(tails)}")
     print()
 
-    # Generate all combinations
-    all_combinations = []
+    # Generate all combinations for all modes
+    all_combinations = set()
+
+    # C1 x V x C2
+    c1vc2_count = 0
     for h in heads:
         for v in vowels:
             for t in tails:
                 word = generate_word(h, v, t)
-                all_combinations.append(word)
+                all_combinations.add(word)
+                c1vc2_count += 1
+    print(f"C1 x V x C2 combinations: {c1vc2_count}")
 
-    print(f"Total combinations: {len(all_combinations)}")
+    # C1 x V (no tail)
+    c1v_count = 0
+    for h in heads:
+        for v in vowels:
+            word = generate_word(h, v, '')
+            all_combinations.add(word)
+            c1v_count += 1
+    print(f"C1 x V combinations: {c1v_count}")
+
+    # V x C2 (no head)
+    vc2_count = 0
+    for v in vowels:
+        for t in tails:
+            word = generate_word('', v, t)
+            all_combinations.add(word)
+            vc2_count += 1
+    print(f"V x C2 combinations: {vc2_count}")
+
+    # V only (no consonants)
+    v_count = 0
+    for v in vowels:
+        word = generate_word('', v, '')
+        all_combinations.add(word)
+        v_count += 1
+    print(f"V only combinations: {v_count}")
+
+    print(f"Total unique combinations: {len(all_combinations)}")
 
     # Load dictionary
     dictionary = load_dictionary()

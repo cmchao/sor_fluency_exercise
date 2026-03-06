@@ -640,8 +640,8 @@
                 <div class="subgroup-title">Extra</div>
                 <div class="option-group color-option">
                     <label>
-                        <input type="checkbox" id="disable-random" onchange="toggleSeedInput()">
-                        Disable random
+                        <input type="checkbox" id="enable-random" checked onchange="toggleSeedInput()">
+                        Random
                     </label>
                 </div>
                 <div class="option-group">
@@ -1184,12 +1184,12 @@
             return pool;
         }
 
-        // Toggle seed input based on disable random checkbox
+        // Toggle seed input based on random checkbox
         function toggleSeedInput() {
-            const disableRandom = document.getElementById('disable-random').checked;
+            const enableRandom = document.getElementById('enable-random').checked;
             const seedInput = document.getElementById('seed');
-            seedInput.disabled = disableRandom;
-            seedInput.style.opacity = disableRandom ? '0.5' : '1';
+            seedInput.disabled = !enableRandom;
+            seedInput.style.opacity = enableRandom ? '1' : '0.5';
         }
 
         // Main generation function
@@ -1218,11 +1218,11 @@
                 combinationMode = 'v';
             }
 
-            // Check if random is disabled
-            const disableRandom = document.getElementById('disable-random').checked;
+            // Check if random is enabled
+            const enableRandom = document.getElementById('enable-random').checked;
 
             // Initialize seeded RNG (only if random is enabled)
-            if (!disableRandom) {
+            if (enableRandom) {
                 const seed = parseInt(document.getElementById('seed').value) || 1;
                 seedRng(seed);
             }
@@ -1241,7 +1241,7 @@
 
             // Generate all possible combinations and create uniform pool
             const allCombinations = generateAllCombinations(heads, vowels, tails, combinationMode);
-            const combinationPool = createCombinationPool(allCombinations, totalWords, disableRandom);
+            const combinationPool = createCombinationPool(allCombinations, totalWords, !enableRandom);
 
             const groups = [];
             let wordIndex = 0;

@@ -1422,7 +1422,10 @@
             const counts = {};
             pool.forEach(combo => {
                 const el = combo[key];
-                counts[el] = (counts[el] || 0) + 1;
+                // Skip empty values (for V-only or C1V/VC2 modes)
+                if (el) {
+                    counts[el] = (counts[el] || 0) + 1;
+                }
             });
             return counts;
         }
@@ -1439,6 +1442,10 @@
             const totalWords = combinationPool.length;
 
             function renderBarChart(counts, type, title) {
+                // Skip if no data
+                if (Object.keys(counts).length === 0) {
+                    return '';
+                }
                 const maxCount = Math.max(...Object.values(counts));
                 let html = '<div class="stats-category">';
                 html += `<div class="stats-category-title ${type}">${title}</div>`;

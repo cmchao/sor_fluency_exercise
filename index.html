@@ -591,6 +591,12 @@
                 </div>
                 <div class="option-group color-option">
                     <label>
+                        <input type="checkbox" id="show-row-numbers" checked>
+                        Show row numbers
+                    </label>
+                </div>
+                <div class="option-group color-option">
+                    <label>
                         <input type="checkbox" id="show-score-column">
                         Show score column
                     </label>
@@ -1258,6 +1264,7 @@
             // Get options
             const fontSize = document.getElementById('font-size').value;
             const fontStyle = document.getElementById('font-style').value;
+            const showRowNumbers = document.getElementById('show-row-numbers').checked;
             const showScoreColumn = document.getElementById('show-score-column').checked;
             const showAuthorField = document.getElementById('show-author-field').checked;
             const showTutorField = document.getElementById('show-tutor-field').checked;
@@ -1283,7 +1290,9 @@
             }
 
             groups.forEach((words, index) => {
-                html += `<span class="group-number">${index + 1}.</span>`;
+                if (showRowNumbers) {
+                    html += `<span class="group-number">${index + 1}.</span>`;
+                }
                 words.forEach(wordObj => {
                     html += `<span class="word">${formatWord(wordObj)}</span>`;
                 });
@@ -1300,9 +1309,10 @@
             outputDiv.innerHTML = html;
             outputDiv.style.fontSize = fontSize + 'pt';
             outputDiv.style.fontFamily = fontStyle;
-            // Set grid columns: 1 for number + N for words (+ score column if enabled)
+            // Set grid columns: (optional number) + N for words (+ score column if enabled)
+            const numberCol = showRowNumbers ? 'auto ' : '';
             const scoreCol = showScoreColumn ? ' auto' : '';
-            outputDiv.style.gridTemplateColumns = `auto repeat(${elementsPerGroup}, 1fr)${scoreCol}`;
+            outputDiv.style.gridTemplateColumns = `${numberCol}repeat(${elementsPerGroup}, 1fr)${scoreCol}`;
 
             // Calculate and display statistics
             displayStatistics(combinationPool);

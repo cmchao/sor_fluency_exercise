@@ -11,8 +11,14 @@ head = {
     },
     '280': {
         'Sub-1': ['dr', 'tr', 'br', 'pr'],
-        'Sub-2': ['bl', 'pl', 'kl', 'sl'],
+        'Sub-2': ['bl', 'pl', 'cl', 'sl'],
         'Sub-3': ['sm', 'sn', 'sp', 'st', 'sg', 'str']
+    },
+    'Extra': {
+        'Sub-1': ['fr', 'gr', 'cr', 'thr', 'spr', 'shr', 'scr'],
+        'Sub-2': ['fl', 'gl', 'spl'],
+        'Sub-3': ['ph', 'ch', 'sh', 'tw', 'sw', 'qu'],
+        'Sub-4': ['j', 'v', 'y', 'w']
     }
 }
 
